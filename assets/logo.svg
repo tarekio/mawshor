@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 150" width="300" height="150">
+  <style>
+    .bg  { fill: #ffffff; }
+    .fg  { fill: #24292f; }
+    .dim { fill: #6e7781; }
+    @media (prefers-color-scheme: dark) {
+      .bg  { fill: #0d1117; }
+      .fg  { fill: #c9d1d9; }
+      .dim { fill: #c9d1d9; }
+    }
+  </style>
+  <rect width="300" height="200" class="bg" rx="6"/>
+  <g font-family="monospace" font-size="14" class="fg">
+    <text x="10" y="26" xml:space="preserve">                .      </text>
+    <text x="10" y="46" xml:space="preserve">               / \   /</text>
+    <text x="10" y="66" xml:space="preserve">      0101 ---/   \--- </text>
+    <text x="10" y="86" xml:space="preserve">             /_____\ \</text>
+    <text x="203" y="26" fill="#e06c75">أ</text>
+    <text x="203" y="66" fill="#98c379">ب</text>
+    <text x="203" y="106" fill="#61afef">ت</text>
+    <text x="129" y="126" class="dim">مَوْشُور</text>
+  </g>
+</svg>

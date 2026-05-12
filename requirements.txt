@@ -1,0 +1,2 @@
+onnxtr[gpu-headless]==0.8.1
+requests==2.33.1
