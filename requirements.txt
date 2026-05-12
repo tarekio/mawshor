@@ -1,2 +1,4 @@
 onnxtr[gpu-headless]==0.8.1
+onnxruntime-gpu==1.26.0
+opencv-python-headless==4.13.0.92
 requests==2.33.1
