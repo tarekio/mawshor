@@ -45,6 +45,12 @@ pip install mawshor            # CPU
 pip install "mawshor[gpu]"     # CUDA
 ```
 
+Or run without installing via [uvx](https://docs.astral.sh/uv/guides/tools/):
+
+```bash
+uvx mawshor <path> [options]
+```
+
 ## Usage
 
 ### CLI
