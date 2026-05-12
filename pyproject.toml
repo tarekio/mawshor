@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "mawshor"
-version = "0.1.0"
+version = "0.1.1"
 description = "Arabic OCR pipeline built on OnnxTR with fine-tuned Arabic models"
 readme = "README.md"
 requires-python = ">=3.10"
