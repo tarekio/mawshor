@@ -46,6 +46,8 @@ jobs:
   verify:
     needs: publish
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
       - uses: actions/setup-python@v5
