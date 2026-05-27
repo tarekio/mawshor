@@ -1,10 +1,27 @@
 from __future__ import annotations
 
+import json
 import logging
 import os
 import sys
 
 import mawshor
+
+
+def _resolve_output_path(doc_path: str, ext: str, output_dir: str | None) -> str:
+    basename = os.path.splitext(os.path.basename(doc_path))[0] + ext
+    if output_dir:
+        return os.path.join(output_dir, basename)
+    return os.path.join(os.path.dirname(doc_path) or ".", basename)
+
+
+def _confirm_overwrite(path: str, overwrite: bool) -> bool:
+    if not os.path.exists(path):
+        return True
+    if overwrite:
+        return True
+    answer = input(f"File already exists: {path}\nOverwrite? [y/N] ").strip().lower()
+    return answer in ("y", "yes")
 
 
 def main() -> None:
@@ -21,10 +38,22 @@ def main() -> None:
         help="Save output to a .txt file next to each input.",
     )
     parser.add_argument(
-        "--raw-output",
-        "-r",
+        "--json",
+        "-j",
         action="store_true",
-        help="Print the raw predictor output before text extraction.",
+        help="Save the full predictor output as a formatted JSON file.",
+    )
+    parser.add_argument(
+        "--output-dir",
+        "-o",
+        metavar="DIR",
+        help="Directory to save output files (default: same directory as input).",
+    )
+    parser.add_argument(
+        "--overwrite",
+        "-y",
+        action="store_true",
+        help="Overwrite existing output files without prompting.",
     )
     parser.add_argument(
         "--straighten-pages",
@@ -62,14 +91,31 @@ def main() -> None:
         action="store_true",
         help="Show progress information.",
     )
+    parser.add_argument(
+        "--debug",
+        "-d",
+        action="store_true",
+        help="Show debug messages.",
+    )
 
     args = parser.parse_args()
 
+    if args.debug:
+        level = logging.DEBUG
+    elif args.verbose:
+        level = logging.INFO
+    else:
+        level = logging.WARNING
+
     logging.basicConfig(
-        level=logging.INFO if args.verbose else logging.WARNING,
-        format="%(message)s",
+        level=level,
+        format="%(name)s: %(message)s" if args.debug else "%(message)s",
         stream=sys.stderr,
     )
+    logging.getLogger("huggingface_hub").setLevel(logging.ERROR)
+
+    if args.output_dir:
+        os.makedirs(args.output_dir, exist_ok=True)
 
     predictor = mawshor.load_predictor(straighten_pages=args.straighten_pages)
 
@@ -88,8 +134,15 @@ def main() -> None:
 
         raw = run_predictor(predictor, doc_path)
 
-        if args.raw_output:
-            print(raw)
+        if args.json:
+            output_path = _resolve_output_path(doc_path, ".json", args.output_dir)
+            if not _confirm_overwrite(output_path, args.overwrite):
+                print(f"Skipped: {output_path}", file=sys.stderr)
+                continue
+            with open(output_path, "w", encoding="utf-8") as f:
+                json.dump(raw.export(), f, ensure_ascii=False, indent=2)
+            print(f"Saved: {output_path}", file=sys.stderr)
+            continue
 
         display_text, correction_text, low_conf = extract_text(
             raw, postprocess=args.postprocess
@@ -107,10 +160,12 @@ def main() -> None:
             final_text = display_text
 
         if args.save:
-            output_path = os.path.splitext(doc_path)[0] + ".txt"
-            with open(output_path, "w", encoding="utf-8") as f:
-                f.write(final_text)
-            print(f"Saved: {output_path}")
+            output_path = _resolve_output_path(doc_path, ".txt", args.output_dir)
+            if not _confirm_overwrite(output_path, args.overwrite):
+                print(f"Skipped: {output_path}", file=sys.stderr)
+            else:
+                with open(output_path, "w", encoding="utf-8") as f:
+                    f.write(final_text)
+                print(f"Saved: {output_path}", file=sys.stderr)
         else:
-            separator = "=" * 50
-            print(f"=== {doc_path} ===\n{final_text}\n{separator}\n")
+            print(final_text)
