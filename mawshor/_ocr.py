@@ -67,7 +67,7 @@ def load_predictor(straighten_pages: bool = False) -> OCRPredictor:
         predictor.page_orientation_predictor = page_orientation_predictor(
             arch=page_orientation_model
         )
-
+    logger.debug("Loaded OCR predictor")
     return predictor
 
 
